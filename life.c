@@ -16,23 +16,22 @@ typedef char colony[MAX][MAX];
 // on the board.
 struct Game{
     colony col;
-    int row, column;
 };
 typedef struct Game game;
 
-// Counts number of live cells around the current one
-int countLive(game *g){
+// Counts number of live cells around the current one (at position (i, j))
+int countLive(colony col, int i, int j){
     int liveCells = 0;
-    int startRow = (g->row - 1 == -1) ? g->row : g->row - 1;
-    int startColumn = (g->column -1 == -1) ? g->column : g->column - 1;
-    int endRow = (g->row + 1 == MAX) ? g->row : g->row+1;
-    int endColumn = (g->column + 1 == MAX) ? g->column : g->column + 1;
-    for(int i = startRow; i <= endRow ; i++){
-        for(int j = startColumn; j <= endColumn; j++){
-            if(g->col[i][j] == ALIVE) liveCells++;
+    int startRow = (i - 1 == -1) ? i : i - 1;
+    int startColumn = (j - 1 == -1) ? j : j - 1;
+    int endRow = (i + 1 == MAX) ? i : i + 1;
+    int endColumn = (j + 1 == MAX) ? j : j + 1;
+    for(int a = startRow; a <= endRow ; a++){
+        for(int b = startColumn; b <= endColumn; b++){
+            if(col[a][b] == ALIVE) liveCells++;
         }
     }
-    if(g->col[g->row][g->column] == ALIVE) liveCells--;
+    if(col[i][j] == ALIVE) liveCells--;
     return liveCells;
 }
 
@@ -65,24 +64,23 @@ void print(colony col) {
 game *newGame(){
     game *g = malloc(sizeof(game));
     readColony(g->col);
-    g->row = 0, g->column = 0;
     return g;
 }
 
 // Updates the state of the current game to a new state
 game *newState(game *g){
     game *n = newGame();
-    for(g->row = 0; g->row < MAX; g->row++){
-        for(g->column = 0; g->column < MAX; g->column++){
-            if(g->col[g->row][g->column] == '#' || g->col[g->row][g->column] == '.'){
-                if(g->col[g->row][g->column] == ALIVE && !(countLive(g) == 2 || countLive(g) == 3)){
-                    n->col[g->row][g->column] = DEAD;
+    for(int i = 0; i < MAX; i++){
+        for(int j = 0; j < MAX; j++){
+            if(g->col[i][j] == '#' || g->col[i][j] == '.'){
+                if(g->col[i][j] == ALIVE && !(countLive(g->col, i, j) == 2 || countLive(g->col, i, j) == 3)){
+                    n->col[i][j] = DEAD;
                 }
-                else if(g->col[g->row][g->column] == DEAD && countLive(g) == 3){
-                    n->col[g->row][g->column] = ALIVE;
+                else if(g->col[i][j] == DEAD && countLive(g->col, i, j) == 3){
+                    n->col[i][j] = ALIVE;
                 }
                 else{
-                    n->col[g->row][g->column] = g->col[g->row][g->column];
+                    n->col[i][j] = g->col[i][j];
                 }
             }
         }
